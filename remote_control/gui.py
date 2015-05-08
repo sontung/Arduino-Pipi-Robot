@@ -27,6 +27,8 @@ class GUI:
         pygame.display.set_caption("Pipi Controlling Interface")
         self.font = pygame.font.Font("assets\\fonts\Cutie Patootie Skinny.ttf", self.font_size)
         self.font_bold = pygame.font.Font("assets\\fonts\Cutie Patootie.ttf", self.font_size)
+        self.typing_tag = False
+        self.prompt = Prompt((self.window_width/2-27, self.window_height/2-57), self)
 
     def make_text(self, text, color, bg_color, center):
         """
@@ -36,6 +38,12 @@ class GUI:
         text_rect = text_surf.get_rect()
         text_rect.center = center
         return text_surf, text_rect
+
+    def set_typing_tag(self, val):
+        """
+        Decide whether you want to type or not
+        """
+        self.typing_tag = val
 
     def draw(self, state):
         """
@@ -97,11 +105,45 @@ class GUI:
             self.display_surface.blit(self.back.get_sr()[0], self.back.get_sr()[1])
 
         elif state == "new season":
+            self.back = Button("Back", self.text_color, self.tile_color, (self.window_width-60, self.window_height/8), self)
             self.zero = Button("zero", self.text_color, self.tile_color, (60, self.window_height/2), self)
             self.one = Button("one", self.text_color, self.tile_color, (self.window_width-120, self.window_height/2), self)
-            self.buttons = [self.zero, self.one]
+            self.buttons = [self.zero, self.one, self.back]
             self.display_surface.blit(self.zero.get_sr()[0], self.zero.get_sr()[1])
             self.display_surface.blit(self.one.get_sr()[0], self.one.get_sr()[1])
+            self.display_surface.blit(self.back.get_sr()[0], self.back.get_sr()[1])
+
+        elif state == "setting":
+            self.prompt_rect = pygame.Rect(self.window_width/2-30, self.window_height/2-60, 60, 50)
+            pygame.draw.rect(self.display_surface, self.colors["white"], self.prompt_rect)
+            self.guide_sur, self.guide_rect = self.make_text("Specify your Bluetooth COM port below:",
+                                                             self.colors["green"], self.tile_color,
+                                                             (self.window_width/2, self.window_height/4))
+            self.save = Button("Save", self.text_color, self.tile_color, (self.window_width/2+90, self.window_height//2-45), self)
+            self.back = Button("Back", self.text_color, self.tile_color, (self.window_width-60, self.window_height/8), self)
+            self.buttons = [self.back, self.save]
+            self.display_surface.blit(self.back.get_sr()[0], self.back.get_sr()[1])
+            self.display_surface.blit(self.save.get_sr()[0], self.save.get_sr()[1])
+            self.display_surface.blit(self.guide_sur, self.guide_rect)
+            if self.typing_tag:
+                pygame.draw.line(self.display_surface, self.colors["black"],
+                                 (self.window_width/2-27, self.window_height/2-57),
+                                 (self.window_width/2-27, self.window_height/2-33), 2)
+            self.display_surface.blit(self.prompt.output()[1], self.prompt.output()[2])
+
+        elif state == "error":
+            sys.stdin = open("error_help.txt")
+            for i in range(9):
+                instructions = sys.stdin.readline().strip()
+                self.instructions_sur, self.instructions_rect = self.make_text(instructions, self.colors["black"],
+                                                                               self.tile_color,
+                                                                               (self.window_width/2,
+                                                                                self.window_height/2-120+i*35))
+                self.display_surface.blit(self.instructions_sur, self.instructions_rect)
+            self.back = Button("Back", self.text_color, self.tile_color,
+                               (self.window_width-60, self.window_height/8), self)
+            self.buttons = [self.back]
+            self.display_surface.blit(self.back.get_sr()[0], self.back.get_sr()[1])
 
 
 class Button:
@@ -147,3 +189,47 @@ class Button:
             self.bold = True
             self.update_sr()
             self.gui.display_surface.blit(self.surf, self.rect)
+
+
+class Prompt:
+    def __init__(self, topleft, _gui):
+        self.string = ""
+        self.color = _gui.text_color
+        self.bg_color = _gui.colors["white"]
+        self.topleft = topleft
+        self.font = _gui.font
+
+    def make_text(self):
+        """
+        Make a text object for drawing
+        """
+        text_surf = self.font.render(self.string, True, self.color, self.bg_color)
+        text_rect = text_surf.get_rect()
+        text_rect.topleft = self.topleft
+        return text_surf, text_rect
+
+    def take_char(self, char):
+        """
+        Take in character or delete previous one.
+        :return:
+        """
+        if char != "del":
+            if len(self.string) <= 3:
+                self.string += char
+        else:
+            self.string = self.string[:-1]
+
+    def output(self):
+        """
+        Output the string
+        :return:
+        """
+        sur, rect = self.make_text()
+        return self.string, sur, rect
+
+    def reset(self):
+        """
+        Reset the prompt
+        :return:
+        """
+        self.string = ""

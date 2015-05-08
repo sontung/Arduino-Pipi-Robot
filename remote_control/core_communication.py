@@ -7,9 +7,30 @@ import serial
 
 
 class Communication:
-    def __init__(self, serial_port):
-        self.serial_port = serial_port  # Bluetooth serial port
+    def __init__(self):
+        self.serial_port = None # Bluetooth serial port
+
+    def specify_port(self, port):
+        """
+        Specify the COM bluetooth port.
+        :param port:
+        :return:
+        """
+        self.serial_port = port
+
+    def connect(self):
+        """
+        Connect to the specified port.
+        :return:
+        """
         self.connection = serial.Serial(self.serial_port)
+
+    def disconnect(self):
+        """
+        Disconnect the port.
+        :return:
+        """
+        self.connection.close()
 
     def write(self, val):
         """

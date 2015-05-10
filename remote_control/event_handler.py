@@ -10,10 +10,10 @@ class EventLogic:
         self._game_gui = _game_gui
         self.bluetooth_talk = core_communication.Communication()
         self.movement = {
-            K_UP: "up",
-            K_DOWN: "down",
-            K_RIGHT: "right",
-            K_LEFT: "left"
+            K_UP: 8,
+            K_DOWN: 2,
+            K_RIGHT: 6,
+            K_LEFT: 4
         }
 
     def quit(self):
@@ -79,13 +79,18 @@ class EventLogic:
         elif event.type == pygame.QUIT:
             self.quit()
 
+        elif event.type == KEYUP:
+            self._game_gui.modify_pos_pad(0)
+
         elif event.type == KEYDOWN:
             if event.key == K_ESCAPE:
                 self.quit()
 
             elif event.key in [K_UP, K_DOWN, K_LEFT, K_RIGHT]:
                 if self._game_state.get_state() == "new season":
-                    pass
+                    while pygame.key.get_pressed()[event.key]:
+                        self._game_gui.modify_pos_pad(self.movement[event.key])
+                        self.event_handler()
 
             if self._game_gui.typing_tag:
                 if event.key in range(48, 58) or event.key in range(256, 266):

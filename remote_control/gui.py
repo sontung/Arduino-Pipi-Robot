@@ -19,7 +19,8 @@ class GUI:
                        "turquoise blue": (0, 199, 140),
                        "green": (0, 128, 0),
                        "light green": (118, 238, 0),
-                       "turquoise": (0, 229, 238)}
+                       "turquoise": (0, 229, 238),
+                       "gray": (152, 152, 152)}
         self.text_color = self.colors["red"]
         self.bg_color = self.colors["turquoise blue"]
         self.tile_color = self.bg_color
@@ -29,6 +30,22 @@ class GUI:
         self.font_bold = pygame.font.Font("assets\\fonts\Cutie Patootie.ttf", self.font_size)
         self.typing_tag = False
         self.prompt = Prompt((self.window_width/2-27, self.window_height/2-57), self)
+        self.pos_pad_modify_command = {
+            0: (90, 340),
+            2: (90, 390),
+            8: (90, 290),
+            4: (40, 340),
+            6: (140, 340)
+        }
+        self.pos_pad_modify_indication = {
+            0: "",
+            2: "moving backward",
+            8: "moving forward",
+            4: "moving to the left",
+            6: "moving to the right"
+        }
+        self.pos_pad_indication = ""  # Default indication for the position of game pad
+        self.pos_pad = (90, 340)  # Default position for the game pad
 
     def make_text(self, text, color, bg_color, center):
         """
@@ -41,9 +58,17 @@ class GUI:
 
     def set_typing_tag(self, val):
         """
-        Decide whether you want to type or not
+        Decide whether you want to type or not.
         """
         self.typing_tag = val
+
+    def modify_pos_pad(self, command):
+        """
+        Modify the position of the pad according to movement.
+        :return:
+        """
+        self.pos_pad_indication = self.pos_pad_modify_indication[command]
+        self.pos_pad = self.pos_pad_modify_command[command]
 
     def draw(self, state):
         """
@@ -108,10 +133,15 @@ class GUI:
             self.back = Button("Back", self.text_color, self.tile_color, (self.window_width-60, self.window_height/8), self)
             self.zero = Button("zero", self.text_color, self.tile_color, (60, self.window_height/2), self)
             self.one = Button("one", self.text_color, self.tile_color, (self.window_width-120, self.window_height/2), self)
+            indi_sur, indi_rect = self.make_text(self.pos_pad_indication, self.text_color, self.tile_color,
+                                                 (self.window_width/2, self.window_height/2))
             self.buttons = [self.zero, self.one, self.back]
             self.display_surface.blit(self.zero.get_sr()[0], self.zero.get_sr()[1])
             self.display_surface.blit(self.one.get_sr()[0], self.one.get_sr()[1])
             self.display_surface.blit(self.back.get_sr()[0], self.back.get_sr()[1])
+            self.display_surface.blit(indi_sur, indi_rect)
+            pygame.draw.circle(self.display_surface, self.colors["white"], (90, 340), 50, 6)
+            pygame.draw.circle(self.display_surface, self.colors["gray"], self.pos_pad, 30, 30)
 
         elif state == "setting":
             self.prompt_rect = pygame.Rect(self.window_width/2-30, self.window_height/2-60, 60, 50)

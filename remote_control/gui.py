@@ -131,13 +131,9 @@ class GUI:
 
         elif state == "new season":
             self.back = Button("Back", self.text_color, self.tile_color, (self.window_width-60, self.window_height/8), self)
-            self.zero = Button("zero", self.text_color, self.tile_color, (60, self.window_height/2), self)
-            self.one = Button("one", self.text_color, self.tile_color, (self.window_width-120, self.window_height/2), self)
             indi_sur, indi_rect = self.make_text(self.pos_pad_indication, self.text_color, self.tile_color,
                                                  (self.window_width/2, self.window_height/2))
-            self.buttons = [self.zero, self.one, self.back]
-            self.display_surface.blit(self.zero.get_sr()[0], self.zero.get_sr()[1])
-            self.display_surface.blit(self.one.get_sr()[0], self.one.get_sr()[1])
+            self.buttons = [self.back]
             self.display_surface.blit(self.back.get_sr()[0], self.back.get_sr()[1])
             self.display_surface.blit(indi_sur, indi_rect)
             pygame.draw.circle(self.display_surface, self.colors["white"], (90, 340), 50, 6)

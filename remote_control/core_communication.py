@@ -32,9 +32,9 @@ class Communication:
         """
         self.connection.close()
 
-    def write(self, val):
+    def command(self, val):
         """
-        Send val to bluetooth module.
+        Send command to bluetooth module.
         :param val:
         :return:
         """

@@ -2,6 +2,10 @@
 
 Mobile robot using Arduino Uno
 
+## 12th May, 2015
+### Update 1.0.2
+Complete RC interface for the Pipi (only controlled by keyboard) and arduino code for recognizing and processing commands. Demo video coming soon.
+
 ## 10th May, 2015
 ### Update 1.0.1
 Control pad is added to the RC interface.

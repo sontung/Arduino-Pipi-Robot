@@ -4,97 +4,11 @@ import core_communication
 from pygame.locals import *
 
 
-class JoystickInfo:
-    def __init__(self):
-        self.axis_to_command = {
-            2: 1.0,
-            4: -1.0,
-            6: 1.0,
-            8: -1.0
-        }
-
-        joystick_count = pygame.joystick.get_count()
-
-        # For each joystick:
-        for i in range(joystick_count):
-            self.joystick = pygame.joystick.Joystick(i)
-            self.joystick.init()
-
-            # Get the name from the OS for the controller/joystick
-            self.name = self.joystick.get_name()
-
-    def get_axes_val(self):
-        """
-        Get axis values from the joystick.
-        :return:
-        """
-        axes1 = []
-        axes2 = []
-        num_axes = self.joystick.get_numaxes()
-        for i in range(num_axes):
-            if i <= 1:
-                axes1.append(self.joystick.get_axis(i))
-            elif i <= 3:
-                axes2.append(self.joystick.get_axis(i))
-        return axes1, axes2
-
-    def if_move(self, type):
-        """
-        Sense the motion of the joystick.
-        :param type:
-        :return:
-        """
-        if type == "axis":
-            val1, val2 = self.get_axes_val()
-            for x in val1:
-                if abs(x) == 1.0:
-                    return "1"
-            for y in val2:
-                if abs(y) == 1.0:
-                    return "2"
-            return None
-
-    def interpret(self, type):
-        """
-        Interpret input values from the joystick into
-        commands.
-        :return:
-        """
-        if type == "axis":
-            val1, val2 = self.get_axes_val()
-            motion = self.if_move(type)
-            print motion
-            if motion is not None:
-                if motion == "1":
-                    if abs(val1[0]) == 1:
-                        if self.axis_to_command[4] == val1[0]:
-                            return 4
-                        elif self.axis_to_command[6] == val1[0]:
-                            return 6
-                    elif abs(val1[1]) == 1:
-                        if self.axis_to_command[2] == val1[1]:
-                            return 2
-                        elif self.axis_to_command[8] == val1[1]:
-                            return 8
-                elif motion == "2":
-                    if abs(val2[0]) == 1:
-                        if self.axis_to_command[4] == val2[0]:
-                            return 4
-                        elif self.axis_to_command[6] == val2[0]:
-                            return 6
-                    if abs(val2[1]) == 1:
-                        if self.axis_to_command[2] == val2[1]:
-                            return 2
-                        elif self.axis_to_command[8] == val2[1]:
-                            return 8
-
-
 class EventLogic:
     def __init__(self, _game_state, _game_gui):
         self._game_state = _game_state
         self._game_gui = _game_gui
         self.bluetooth_talk = core_communication.Communication()
-        #self.joystick_tracking = JoystickInfo()
         self.movement = {
             K_UP: 8,
             K_DOWN: 2,
@@ -159,14 +73,7 @@ class EventLogic:
         elif event.type == pygame.QUIT:
             self.quit()
 
-        elif event.type == JOYAXISMOTION:
-            if self._game_state.get_state() == "new season":
-                while self.joystick_tracking.if_move("axis") is not None:
-                    self._game_gui.modify_pos_pad(self.joystick_tracking.interpret("axis"))
-                    self.bluetooth_talk.command(str(self.joystick_tracking.interpret("axis")))
-                    self.event_handler()
-
-        elif event.type == KEYUP: #or self.joystick_tracking.if_move("axis") is None:
+        elif event.type == KEYUP:
             if self._game_state.get_state() == "new season":
                 self.bluetooth_talk.command('0')
                 self._game_gui.modify_pos_pad(0)
@@ -182,8 +89,8 @@ class EventLogic:
                         self.bluetooth_talk.command(str(self.movement[event.key]))
                         self.event_handler()
 
-            if self._game_gui.typing_tag:
-                if event.key in range(48, 58) or event.key in range(256, 266):
+            elif event.key in range(48, 58) or event.key in range(256, 266):
+                if self._game_gui.typing_tag:
                     if event.key < 100:
                         char = str(event.key-48)
                     elif event.key < 300:

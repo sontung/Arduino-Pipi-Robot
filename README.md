@@ -2,6 +2,10 @@
 
 Mobile robot using Arduino Uno
 
+## 14th May, 2015
+### Update 1.0.3
+Complete project 1, control Pipi via bluetooth and Arduino Uno.
+
 ## 12th May, 2015
 ### Update 1.0.2
 Complete RC interface for the Pipi (only controlled by keyboard) and arduino code for recognizing and processing commands. Demo video coming soon.
